@@ -1,0 +1,59 @@
+# Pile Docker minimale du starter : backend PHP (serveur intégré),
+# MariaDB et phpMyAdmin. Pensé pour le développement, pas pour la
+# production — voir DOCKER.md pour le détail de chaque choix et ses
+# limites.
+#
+# Les identifiants de connexion (DB_NAME, DB_USER, DB_PASSWORD,
+# DB_ROOT_PASSWORD) sont lus depuis un fichier .env à la racine du projet
+# (copié depuis .env.docker) : une seule source de vérité, partagée entre
+# le backend PHP et le service MariaDB.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      # Bind mount du code source pour un développement à chaud (éditer un
+      # fichier PHP sur l'hôte, le voir immédiatement pris en compte par le
+      # serveur intégré, sans reconstruire l'image).
+      - .:/var/www/html
+      # Volume anonyme : masque le bind mount ci-dessus pour /vendor,
+      # préservant les dépendances installées à la construction de l'image
+      # plutôt que d'exposer (ou d'exiger) un vendor/ présent sur l'hôte.
+      - /var/www/html/vendor
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-vdl_starter}
+      MARIADB_USER: ${DB_USER:-vdl}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-vdl}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    environment:
+      PMA_HOST: db
+      PMA_USER: ${DB_USER:-vdl}
+      PMA_PASSWORD: ${DB_PASSWORD:-vdl}
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+
+volumes:
+  db_data:

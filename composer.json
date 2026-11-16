@@ -1,0 +1,35 @@
+{
+    "name": "vdl/starter-kit",
+    "description": "Starter PHP pragmatique pour applications REST, RPC et Web.",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.3",
+        "doctrine/dbal": "^4.4",
+        "doctrine/migrations": "^3.9",
+        "doctrine/orm": "^3.7",
+        "monolog/monolog": "^3.7",
+        "slim/psr7": "^1.7",
+        "slim/slim": "^4.15",
+        "slim/twig-view": "^3.4",
+        "symfony/cache": "^8.1",
+        "zircote/swagger-php": "^6.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "App\\Migrations\\": "migrations/"
+        }
+    },
+    "scripts": {
+        "start": "php -S localhost:8080 -t public",
+        "make:rest": "@php scripts/make.php rest",
+        "make:domain": "@php scripts/make.php domain",
+        "make:rpc": "@php scripts/make.php rpc",
+        "make:repository": "@php scripts/make.php repository",
+        "doctrine": "@php vendor/bin/doctrine-migrations"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

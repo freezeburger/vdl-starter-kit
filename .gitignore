@@ -1,0 +1,8 @@
+/vendor/
+.env
+.phpunit.result.cache
+/logs/*.log
+/frontend/node_modules/
+/public/app/
+/documentation/MISSION.md
+/documentation/PRESENTATION.md
